@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel</title>
+
+<style>
+body{
+font-family:Arial;
+background:#f1f4f9;
+padding:20px;
+}
+
+.box{
+max-width:900px;
+margin:auto;
+background:white;
+padding:20px;
+border-radius:20px;
+box-shadow:0 5px 15px rgba(0,0,0,0.1);
+}
+
+input,textarea,select{
+width:100%;
+padding:12px;
+margin-top:10px;
+border-radius:10px;
+border:1px solid #ccc;
+}
+
+textarea{
+min-height:220px;
+}
+
+button{
+padding:12px 18px;
+border:none;
+border-radius:10px;
+margin-top:10px;
+cursor:pointer;
+}
+
+.login-btn,.save-btn{
+background:#0d6efd;
+color:white;
+}
+
+.logout-btn{
+background:#dc3545;
+color:white;
+}
+</style>
+</head>
+<body>
+
+<div class="box" id="loginBox">
+<h2>🔐 Admin Login</h2>
+<input type="password" id="adminPassword" placeholder="Admin Password">
+<button class="login-btn" onclick="login()">Login</button>
+</div>
+
+<div class="box" id="adminPanel" style="display:none;">
+<h2>📝 Story Admin Panel</h2>
+
+<input type="text" id="storyTitle" placeholder="গল্পের নাম">
+
+<select id="storyCategory">
+<option>রোমান্টিক</option>
+<option>ভৌতিক</option>
+<option>ইসলামিক</option>
+<option>অ্যাডভেঞ্চার</option>
+<option>ফানি</option>
+<option>অন্যান্য</option>
+</select>
+
+<input type="file" id="storyImage">
+
+<textarea id="storyContent" placeholder="গল্প লিখুন..."></textarea>
+
+<button class="save-btn" onclick="saveStory()">🚀 গল্প পোস্ট করুন</button>
+
+<button class="logout-btn" onclick="logout()">Logout</button>
+</div>
+
+<script>
+const ADMIN_PASSWORD = '12345';
+
+let stories = JSON.parse(localStorage.getItem('stories')) || [];
+
+if(localStorage.getItem('adminLogin') === 'true'){
+showAdminPanel();
+}
+
+function login(){
+const pass = document.getElementById('adminPassword').value;
+
+if(pass === ADMIN_PASSWORD){
+localStorage.setItem('adminLogin','true');
+showAdminPanel();
+}else{
+alert('ভুল Password');
+}
+}
+
+function showAdminPanel(){
+document.getElementById('loginBox').style.display='none';
+document.getElementById('adminPanel').style.display='block';
+}
+
+function logout(){
+localStorage.removeItem('adminLogin');
+location.reload();
+}
+
+function saveStory(){
+const title = document.getElementById('storyTitle').value;
+const category = document.getElementById('storyCategory').value;
+const content = document.getElementById('storyContent').value;
+const imageInput = document.getElementById('storyImage');
+
+if(!title || !content){
+alert('সব তথ্য দিন');
+return;
+}
+
+if(imageInput.files[0]){
+const reader = new FileReader();
+
+reader.onload = function(e){
+saveData(e.target.result);
+}
+
+reader.readAsDataURL(imageInput.files[0]);
+}else{
+saveData('');
+}
+}
+
+function saveData(image){
+const story = {
+title:document.getElementById('storyTitle').value,
+category:document.getElementById('storyCategory').value,
+content:document.getElementById('storyContent').value,
+image:image,
+likes:0,
+comments:[],
+date:new Date().toLocaleString('bn-BD')
+};
+
+stories.unshift(story);
+localStorage.setItem('stories', JSON.stringify(stories));
+
+alert('গল্প পোস্ট হয়েছে');
+
+location.reload();
+}
+</script>
+
+</body>
+</html>
